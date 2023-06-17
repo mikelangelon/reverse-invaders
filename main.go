@@ -25,9 +25,12 @@ func main() {
 	g := &game{
 		hero: Hero{
 			img: img,
-			position: Position{
-				X: 100,
-				Y: 500,
+			position: Box{
+				X:      100,
+				Y:      500,
+				With:   64,
+				Height: 64,
+				Scale:  1,
 			}},
 		aliens: generateAliens(),
 	}
@@ -47,9 +50,12 @@ func generateAliens() []*Alien {
 		for j := 0; j < 4; j++ {
 			aliens = append(aliens, &Alien{
 				img: img,
-				position: Position{
-					X: float64(100 + i*100),
-					Y: float64(30 + j*100),
+				box: Box{
+					X:      float64(100 + i*100),
+					Y:      float64(30 + j*100),
+					With:   64,
+					Height: 64,
+					Scale:  0.5,
 				},
 			})
 		}

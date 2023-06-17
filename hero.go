@@ -4,7 +4,7 @@ import "github.com/hajimehoshi/ebiten/v2"
 
 type Hero struct {
 	img      *ebiten.Image
-	position Position
+	position Box
 }
 
 func (h *Hero) Draw(screen *ebiten.Image) {
