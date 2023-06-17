@@ -14,7 +14,12 @@ func (g *game) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func (g *game) Update() error {
-	moveAlien(g.aliens[0])
+	for _, v := range g.aliens {
+		if v.player {
+			moveAlien(v)
+		}
+	}
+
 	return nil
 }
 

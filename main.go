@@ -4,6 +4,7 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"log"
+	"math/rand"
 )
 
 const (
@@ -53,5 +54,8 @@ func generateAliens() []*Alien {
 			})
 		}
 	}
+	// Pick random alien to be the player
+	n := rand.Int() % len(aliens)
+	aliens[n].player = true
 	return aliens
 }
