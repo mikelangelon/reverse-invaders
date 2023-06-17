@@ -18,6 +18,7 @@ github.com/go-gl/glfw/v3.3/glfw/glfw/src
 # github.com/hajimehoshi/ebiten/v2 v2.5.4
 ## explicit; go 1.18
 github.com/hajimehoshi/ebiten/v2
+github.com/hajimehoshi/ebiten/v2/ebitenutil
 github.com/hajimehoshi/ebiten/v2/internal/affine
 github.com/hajimehoshi/ebiten/v2/internal/atlas
 github.com/hajimehoshi/ebiten/v2/internal/buffered
@@ -56,6 +57,7 @@ github.com/hajimehoshi/ebiten/v2/internal/shaderir/msl
 github.com/hajimehoshi/ebiten/v2/internal/thread
 github.com/hajimehoshi/ebiten/v2/internal/ui
 github.com/hajimehoshi/ebiten/v2/internal/vibrate
+github.com/hajimehoshi/ebiten/v2/vector
 # github.com/jezek/xgb v1.1.0
 ## explicit; go 1.11
 github.com/jezek/xgb
