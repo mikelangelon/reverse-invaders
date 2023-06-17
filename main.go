@@ -35,16 +35,16 @@ func main() {
 	}
 }
 
-func generateAliens() []Alien {
+func generateAliens() []*Alien {
 	img, _, err := ebitenutil.NewImageFromFile("assets/pixel.png")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	var aliens []Alien
+	var aliens []*Alien
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 4; j++ {
-			aliens = append(aliens, Alien{
+			aliens = append(aliens, &Alien{
 				img: img,
 				position: Position{
 					X: float64(100 + i*100),
