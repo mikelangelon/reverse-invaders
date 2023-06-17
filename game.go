@@ -5,7 +5,8 @@ import (
 )
 
 type game struct {
-	hero Hero
+	hero   Hero
+	aliens []Alien
 }
 
 func (g *game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -18,4 +19,7 @@ func (g *game) Update() error {
 
 func (g *game) Draw(screen *ebiten.Image) {
 	g.hero.Draw(screen)
+	for _, v := range g.aliens {
+		v.Draw(screen)
+	}
 }
