@@ -74,16 +74,25 @@ func (g *game) playerToAlienCollisions() {
 }
 
 func (g *game) alienToShootsCollisions() {
-	for _, v := range g.shoots {
-		if AreColliding(v.box, g.hero.position) {
-			g.hero.state = stateDead
-			v.state = stateDead
+	for _, v := range g.aliens {
+		for _, z := range g.shoots {
+			if !z.byHero {
+				continue
+			}
+			if AreColliding(v.box, z.box) {
+				v.state = stateDead
+				z.state = stateDead
+			}
 		}
 	}
+
 }
 
 func (g *game) heroCollisions() {
 	for _, v := range g.shoots {
+		if v.byHero {
+			continue
+		}
 		if v.box.CollidesTo(g.hero.position) {
 			g.hero.state = stateDead
 			v.state = stateDead
