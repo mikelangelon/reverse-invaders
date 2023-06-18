@@ -10,10 +10,11 @@ type Box struct {
 }
 
 func (b Box) CollidesTo(o Box) bool {
-	collision := b.XScaled() < o.XScaled()+o.WithScaled() &&
-		b.XScaled()+b.WithScaled() > o.XScaled() &&
-		b.YScaled() < o.YScaled()+o.HeightScaled() &&
-		b.YScaled()+b.HeightScaled() > o.YScaled()
+	var margin float64 = 5
+	collision := b.XScaled() < o.XScaled()+o.WithScaled()-margin &&
+		b.XScaled()+b.WithScaled()-margin > o.XScaled() &&
+		b.YScaled() < o.YScaled()+o.HeightScaled()-margin &&
+		b.YScaled()+b.HeightScaled()-margin > o.YScaled()
 	return collision
 }
 

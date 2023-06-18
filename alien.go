@@ -34,7 +34,29 @@ func (a *Alien) Draw(screen *ebiten.Image) {
 	cm.Translate(200, 0, 0, 0)
 	colorm.DrawImage(screen, a.img, cm, op)
 }
-
+func (a Aliens) Move(game *game) {
+	var min = a[0].box.XScaled()
+	var max = a[0].box.XScaled()
+	for _, v := range a {
+		if min > v.box.XScaled() {
+			min = v.box.XScaled()
+		}
+		if max < v.box.XScaled() {
+			max = v.box.XScaled()
+		}
+	}
+	for _, v := range a {
+		if max > width && (v.box.Speed) > 0 {
+			v.box.Speed = v.box.Speed * -1
+		} else if min <= 0 && (v.box.Speed) < 0 {
+			v.box.Speed = v.box.Speed * -1
+		}
+		v.Move(game)
+	}
+}
+func (a *Alien) Move(game *game) {
+	a.box.X += a.box.Speed
+}
 func (a Aliens) getPlayers() Aliens {
 	var aliens Aliens
 	for _, v := range a {

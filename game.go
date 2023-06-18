@@ -53,6 +53,7 @@ func (g *game) moveShoots() {
 
 func (g *game) updateActions() {
 	g.hero.Move(g)
+	g.aliens.getNoPlayers().Move(g)
 }
 
 func (g *game) updateCollisions() {
