@@ -1,14 +1,16 @@
 package main
 
 import (
+	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type game struct {
-	hero   *Hero
-	aliens Aliens
-	shoots []*Shoot
-	state  gameState
+	hero       *Hero
+	aliens     Aliens
+	shoots     []*Shoot
+	explosions []*Explosion
+	state      gameState
 }
 
 func (g *game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -37,12 +39,16 @@ func (g *game) Draw(screen *ebiten.Image) {
 	for _, v := range g.shoots {
 		v.Draw(screen)
 	}
+	for _, v := range g.explosions {
+		v.Draw(screen)
+	}
 }
 
 func (g *game) entitiesPlay() {
 	g.moveAliens()
 	g.hero.Move(g)
 	g.moveShoots()
+	g.animateExplosions()
 }
 
 func (g *game) moveAliens() {
@@ -59,6 +65,12 @@ func (g *game) moveShoots() {
 	}
 }
 
+func (g *game) animateExplosions() {
+	for _, v := range g.explosions {
+		v.Update()
+	}
+}
+
 func (g *game) updateCollisions() {
 	g.playerToAlienCollisions()
 	g.alienToShootsCollisions()
@@ -72,6 +84,7 @@ func (g *game) playerToAlienCollisions() {
 			if AreColliding(v.box, z.box) {
 				v.state = stateDead
 				z.state = stateDead
+				g.explosions = append(g.explosions, NewExplosion(v.box.XScaled(), v.box.YScaled()))
 			}
 		}
 	}
@@ -86,6 +99,7 @@ func (g *game) alienToShootsCollisions() {
 			if AreColliding(v.box, z.box) {
 				v.state = stateDead
 				z.state = stateDead
+				g.explosions = append(g.explosions, NewExplosion(v.box.XScaled(), v.box.YScaled()))
 			}
 		}
 	}
@@ -125,6 +139,15 @@ func (g *game) cleanDeads() {
 		shoot = append(shoot, v)
 	}
 	g.shoots = shoot
+
+	var explosions []*Explosion
+	for _, v := range g.explosions {
+		if v.ToBeCleaned() {
+			continue
+		}
+		explosions = append(explosions, v)
+	}
+	g.explosions = explosions
 }
 func (g *game) moveAlien(alien *Alien) {
 	if ebiten.IsKeyPressed(ebiten.KeyUp) {
@@ -142,6 +165,7 @@ func (g *game) moveAlien(alien *Alien) {
 	if ebiten.IsKeyPressed(ebiten.KeySpace) {
 		g.shoots = append(g.shoots, NewShoot(alien.box.X, alien.box.Y))
 	}
+	fmt.Println("X: %v, XScaled: %v", alien.box.X, alien.box.XScaled())
 }
 
 func AreColliding(b1, b2 Box) bool {

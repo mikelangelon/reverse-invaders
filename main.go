@@ -26,6 +26,11 @@ func main() {
 		log.Fatal(err)
 	}
 
+	defaultExplosionImg, _, err = ebitenutil.NewImageFromFile("assets/explosion1.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	g := &game{
 		hero: &Hero{
 			img: img,

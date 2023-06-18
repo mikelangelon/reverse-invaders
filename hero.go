@@ -23,6 +23,9 @@ func (h *Hero) Draw(screen *ebiten.Image) {
 }
 
 func (h *Hero) Move(game *game) {
+	if h.state == stateDead {
+		return
+	}
 	h.shootFrame--
 	h.position.X += h.position.Speed
 	if h.position.X > width {
