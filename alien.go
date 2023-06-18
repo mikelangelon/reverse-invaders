@@ -3,13 +3,17 @@ package main
 import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/colorm"
+	"math"
+	"math/rand"
 )
 
 type Alien struct {
-	img    *ebiten.Image
-	box    Box
-	player bool
-	state  state
+	img          *ebiten.Image
+	box          Box
+	player       bool
+	state        state
+	shootFrame   int
+	initMovDownY float64
 }
 
 type Aliens []*Alien
@@ -46,16 +50,48 @@ func (a Aliens) Move(game *game) {
 		}
 	}
 	for _, v := range a {
-		if max > width-v.box.With && (v.box.Speed) > 0 {
-			v.box.Speed = v.box.Speed * -1
-		} else if min <= 0 && (v.box.Speed) < 0 {
-			v.box.Speed = v.box.Speed * -1
+		switch v.state {
+		case stateMovingHoritzontally:
+			if max > width-v.box.With && (v.box.Speed) > 0 {
+				v.state = stateMovingDown
+				v.initMovDownY = v.box.Y
+			} else if min <= 0 && (v.box.Speed) < 0 {
+				v.state = stateMovingDown
+				v.initMovDownY = v.box.Y
+			}
+		case stateMovingDown:
+			if v.initMovDownY+10 > v.box.Y {
+				if max > width-v.box.With && (v.box.Speed) > 0 {
+					v.state = stateMovingHoritzontally
+					v.box.Speed = v.box.Speed * -1
+				} else if min <= 0 && (v.box.Speed) < 0 {
+					v.state = stateMovingHoritzontally
+					v.box.Speed = v.box.Speed * -1
+				}
+			}
 		}
 		v.Move(game)
 	}
 }
 func (a *Alien) Move(game *game) {
-	a.box.X += a.box.Speed
+	a.shootFrame--
+	switch a.state {
+	case stateMovingHoritzontally:
+		a.box.X += a.box.Speed
+	case stateMovingDown:
+		a.box.Y += math.Abs(a.box.Speed)
+	}
+
+	if a.shootFrame <= 0 {
+		a.setShootFrame()
+		shoot := NewShoot(a.box.X, a.box.Y)
+		shoot.box.Speed = 5
+		game.shoots = append(game.shoots, shoot)
+	}
+}
+
+func (a *Alien) setShootFrame() {
+	a.shootFrame = int(ebiten.DefaultTPS / (rand.Float64() * 0.1))
 }
 func (a Aliens) getPlayers() Aliens {
 	var aliens Aliens

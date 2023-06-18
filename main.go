@@ -53,7 +53,7 @@ func generateAliens() []*Alien {
 	var aliens []*Alien
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 4; j++ {
-			aliens = append(aliens, &Alien{
+			a := &Alien{
 				img: img,
 				box: Box{
 					X:      float64(100 + i*120),
@@ -63,7 +63,9 @@ func generateAliens() []*Alien {
 					Speed:  3,
 					Scale:  0.5,
 				},
-			})
+			}
+			a.setShootFrame()
+			aliens = append(aliens, a)
 		}
 	}
 	// Pick random alien to be the player

@@ -3,6 +3,8 @@ package main
 type state int
 
 const (
-	stateAlive state = iota
+	stateMovingHoritzontally state = iota
+
+	stateMovingDown
 	stateDead
 )
