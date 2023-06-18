@@ -60,7 +60,7 @@ func (a Aliens) Move(game *game) {
 				v.initMovDownY = v.box.Y
 			}
 		case stateMovingDown:
-			if v.initMovDownY+10 > v.box.Y {
+			if v.initMovDownY+30 < v.box.Y {
 				if max > width-v.box.With && (v.box.Speed) > 0 {
 					v.state = stateMovingHoritzontally
 					v.box.Speed = v.box.Speed * -1
