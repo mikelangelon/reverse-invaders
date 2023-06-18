@@ -56,7 +56,7 @@ func generateAliens() []*Alien {
 			aliens = append(aliens, &Alien{
 				img: img,
 				box: Box{
-					X:      float64(100 + i*100),
+					X:      float64(100 + i*120),
 					Y:      float64(30 + j*100),
 					With:   64,
 					Height: 64,
@@ -69,5 +69,6 @@ func generateAliens() []*Alien {
 	// Pick random alien to be the player
 	n := rand.Int() % len(aliens)
 	aliens[n].player = true
+
 	return aliens
 }

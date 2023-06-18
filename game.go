@@ -8,6 +8,7 @@ type game struct {
 	hero   *Hero
 	aliens Aliens
 	shoots []*Shoot
+	state  gameState
 }
 
 func (g *game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -15,8 +16,13 @@ func (g *game) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func (g *game) Update() error {
-	g.updatePositions()
-	g.updateActions()
+	if g.state == gameStateMenu {
+		if ebiten.IsKeyPressed(ebiten.KeyEnter) {
+			g.state = gameStatePlaying
+		}
+		return nil
+	}
+	g.entitiesPlay()
 	g.updateCollisions()
 	g.cleanDeads()
 
@@ -33,8 +39,9 @@ func (g *game) Draw(screen *ebiten.Image) {
 	}
 }
 
-func (g *game) updatePositions() {
+func (g *game) entitiesPlay() {
 	g.moveAliens()
+	g.hero.Move(g)
 	g.moveShoots()
 }
 
@@ -44,16 +51,12 @@ func (g *game) moveAliens() {
 			g.moveAlien(v)
 		}
 	}
+	g.aliens.getNoPlayers().Move(g)
 }
 func (g *game) moveShoots() {
 	for _, v := range g.shoots {
 		v.box.Y += v.box.Speed
 	}
-}
-
-func (g *game) updateActions() {
-	g.hero.Move(g)
-	g.aliens.getNoPlayers().Move(g)
 }
 
 func (g *game) updateCollisions() {
@@ -125,18 +128,18 @@ func (g *game) cleanDeads() {
 }
 func (g *game) moveAlien(alien *Alien) {
 	if ebiten.IsKeyPressed(ebiten.KeyUp) {
-		alien.box.Y -= 5
+		alien.box.Y -= alien.box.Speed
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyDown) {
-		alien.box.Y += 5
+		alien.box.Y += alien.box.Speed
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-		alien.box.X -= 5
+		alien.box.X -= alien.box.Speed
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyRight) {
-		alien.box.X += 5
+		alien.box.X += alien.box.Speed
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyEnter) {
+	if ebiten.IsKeyPressed(ebiten.KeySpace) {
 		g.shoots = append(g.shoots, NewShoot(alien.box.X, alien.box.Y))
 	}
 }
