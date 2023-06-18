@@ -5,8 +5,9 @@ import (
 )
 
 type game struct {
-	hero   Hero
+	hero   *Hero
 	aliens Aliens
+	shoots []*Shoot
 }
 
 func (g *game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -15,9 +16,8 @@ func (g *game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 func (g *game) Update() error {
 	g.updatePositions()
-
+	g.updateActions()
 	g.updateCollisions()
-
 	g.cleanDeads()
 
 	return nil
@@ -28,14 +28,31 @@ func (g *game) Draw(screen *ebiten.Image) {
 	for _, v := range g.aliens {
 		v.Draw(screen)
 	}
+	for _, v := range g.shoots {
+		v.Draw(screen)
+	}
 }
 
 func (g *game) updatePositions() {
+	g.moveAliens()
+	g.moveShoots()
+}
+
+func (g *game) moveAliens() {
 	for _, v := range g.aliens {
 		if v.player {
-			moveAlien(v)
+			g.moveAlien(v)
 		}
 	}
+}
+func (g *game) moveShoots() {
+	for _, v := range g.shoots {
+		v.box.Y += v.box.Speed
+	}
+}
+
+func (g *game) updateActions() {
+	g.hero.Move(g)
 }
 
 func (g *game) updateCollisions() {
@@ -57,11 +74,21 @@ func (g *game) playerToAlienCollisions() {
 }
 
 func (g *game) alienToShootsCollisions() {
-
+	for _, v := range g.shoots {
+		if AreColliding(v.box, g.hero.position) {
+			g.hero.state = stateDead
+			v.state = stateDead
+		}
+	}
 }
 
 func (g *game) heroCollisions() {
-
+	for _, v := range g.shoots {
+		if v.box.CollidesTo(g.hero.position) {
+			g.hero.state = stateDead
+			v.state = stateDead
+		}
+	}
 }
 
 func (g *game) cleanDeads() {
@@ -73,8 +100,20 @@ func (g *game) cleanDeads() {
 		alive = append(alive, v)
 	}
 	g.aliens = alive
+
+	var shoot []*Shoot
+	for _, v := range g.shoots {
+		if v.state == stateDead {
+			continue
+		}
+		//if v.box.ConvertY() > height || v.box.ConvertY() < 0 {
+		//	continue
+		//}
+		shoot = append(shoot, v)
+	}
+	g.shoots = shoot
 }
-func moveAlien(alien *Alien) {
+func (g *game) moveAlien(alien *Alien) {
 	if ebiten.IsKeyPressed(ebiten.KeyUp) {
 		alien.box.Y -= 5
 	}
@@ -86,6 +125,9 @@ func moveAlien(alien *Alien) {
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyRight) {
 		alien.box.X += 5
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyEnter) {
+		g.shoots = append(g.shoots, NewShoot(alien.box.X, alien.box.Y))
 	}
 }
 

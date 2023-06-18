@@ -4,7 +4,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"log"
-	"math/rand"
 )
 
 const (
@@ -21,9 +20,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defaultShootImg, _, err = ebitenutil.NewImageFromFile("assets/Shoot.png")
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	g := &game{
-		hero: Hero{
+		hero: &Hero{
 			img: img,
 			position: Box{
 				X:      100,
@@ -31,6 +34,7 @@ func main() {
 				With:   64,
 				Height: 64,
 				Scale:  1,
+				Speed:  5,
 			}},
 		aliens: generateAliens(),
 	}
@@ -61,7 +65,8 @@ func generateAliens() []*Alien {
 		}
 	}
 	// Pick random alien to be the player
-	n := rand.Int() % len(aliens)
-	aliens[n].player = true
+	//n := rand.Int() % len(aliens)
+	//aliens[n].player = true
+	aliens[0].player = true
 	return aliens
 }

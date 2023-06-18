@@ -9,15 +9,8 @@ type Alien struct {
 	img    *ebiten.Image
 	box    Box
 	player bool
-	state  alienState
+	state  state
 }
-
-type alienState int
-
-const (
-	stateAlive alienState = iota
-	stateDead
-)
 
 type Aliens []*Alien
 

@@ -6,9 +6,29 @@ type Box struct {
 	With   float64
 	Height float64
 	Scale  float64
+	Speed  float64
 }
 
 func (b Box) CollidesTo(o Box) bool {
-	collision := b.X < o.X+o.With && b.X+b.With > o.X && b.Y < o.Y+o.Height && b.Y+b.Height > o.Y
+	collision := b.XScaled() < o.XScaled()+o.WithScaled() &&
+		b.XScaled()+b.WithScaled() > o.XScaled() &&
+		b.YScaled() < o.YScaled()+o.HeightScaled() &&
+		b.YScaled()+b.HeightScaled() > o.YScaled()
 	return collision
+}
+
+func (b Box) XScaled() float64 {
+	return b.X * b.Scale
+}
+
+func (b Box) YScaled() float64 {
+	return b.Y * b.Scale
+}
+
+func (b Box) WithScaled() float64 {
+	return b.With * b.Scale
+}
+
+func (b Box) HeightScaled() float64 {
+	return b.Height * b.Scale
 }
