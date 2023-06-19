@@ -2,9 +2,12 @@ package main
 
 import (
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
+	"github.com/hajimehoshi/ebiten/v2/audio/wav"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"log"
 	"math/rand"
+	"os"
 )
 
 const (
@@ -13,6 +16,49 @@ const (
 )
 
 func main() {
+
+	const sampleRate = 48000
+	audioContext := audio.NewContext(sampleRate)
+	{
+		f, err := os.Open("assets/drumbit.wav")
+		if err != nil {
+			panic(err)
+		}
+		defer f.Close()
+
+		decoded, err := wav.DecodeWithSampleRate(sampleRate, f)
+		if err != nil {
+			panic(err)
+		}
+
+		loop := audio.NewInfiniteLoop(decoded, decoded.Length())
+		p, err := audioContext.NewPlayer(loop)
+		if err != nil {
+			panic(err)
+		}
+		p.SetVolume(0.8)
+		p.Play()
+	}
+	{
+		f, err := os.Open("assets/explosion.wav")
+		if err != nil {
+			panic(err)
+		}
+		defer f.Close()
+
+		decoded, err := wav.DecodeWithSampleRate(sampleRate, f)
+		if err != nil {
+			panic(err)
+		}
+
+		p, err := audioContext.NewPlayer(decoded)
+		p.SetVolume(0.4)
+		playExplosion = func() {
+			p.Rewind()
+			p.Play()
+		}
+	}
+
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 	ebiten.SetWindowSize(width, height)
 	ebiten.SetWindowTitle("Reverse Invaders")

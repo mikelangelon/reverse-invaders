@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -29,7 +28,7 @@ func NewExplosion(x, y float64) *Explosion {
 		img:       defaultExplosionImg,
 		lastFrame: 10,
 	}
-	fmt.Print("creating explosion on the x: %v, translated to %v and later as %v", x, e.box.X, e.box.XScaled())
+	playExplosion()
 	return e
 }
 

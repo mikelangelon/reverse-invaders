@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -165,7 +164,6 @@ func (g *game) moveAlien(alien *Alien) {
 	if ebiten.IsKeyPressed(ebiten.KeySpace) {
 		g.shoots = append(g.shoots, NewShoot(alien.box.X, alien.box.Y))
 	}
-	fmt.Println("X: %v, XScaled: %v", alien.box.X, alien.box.XScaled())
 }
 
 func AreColliding(b1, b2 Box) bool {
