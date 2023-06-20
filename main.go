@@ -16,11 +16,10 @@ const (
 )
 
 func main() {
-
 	const sampleRate = 48000
 	audioContext := audio.NewContext(sampleRate)
 	{
-		f, err := os.Open("assets/drumbit.wav")
+		f, err := os.Open("assets/menu.wav")
 		if err != nil {
 			panic(err)
 		}
@@ -63,6 +62,10 @@ func main() {
 	ebiten.SetWindowSize(width, height)
 	ebiten.SetWindowTitle("Reverse Invaders")
 
+	menu, _, err := ebitenutil.NewImageFromFile("assets/menu.png")
+	if err != nil {
+		log.Fatal(err)
+	}
 	img, _, err := ebitenutil.NewImageFromFile("assets/pixel.png")
 	if err != nil {
 		log.Fatal(err)
@@ -78,24 +81,18 @@ func main() {
 	}
 
 	g := &game{
-		hero: &Hero{
-			img: img,
-			position: Box{
-				X:      100,
-				Y:      500,
-				With:   64,
-				Height: 64,
-				Scale:  1,
-				Speed:  5,
-			}},
-		aliens: generateAliens(),
+		images: images{
+			menu:  menu,
+			alien: img,
+			hero:  img,
+		},
 	}
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func generateAliens() []*Alien {
+func generateAliens(img *ebiten.Image) []*Alien {
 	img, _, err := ebitenutil.NewImageFromFile("assets/pixel.png")
 	if err != nil {
 		log.Fatal(err)

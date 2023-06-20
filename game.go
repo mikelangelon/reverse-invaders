@@ -1,8 +1,37 @@
 package main
 
 import (
+	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/examples/resources/fonts"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/text"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/opentype"
+	"image/color"
+	"time"
 )
+
+const startText = `Press RETURN to start`
+
+var mplusNormalFont font.Face
+
+func init() {
+	tt, err := opentype.Parse(fonts.MPlus1pRegular_ttf)
+	if err != nil {
+		panic(err)
+	}
+
+	const dpi = 72
+	mplusNormalFont, err = opentype.NewFace(tt, &opentype.FaceOptions{
+		Size:    24,
+		DPI:     dpi,
+		Hinting: font.HintingVertical,
+	})
+	if err != nil {
+		panic(err)
+	}
+}
 
 type game struct {
 	hero       *Hero
@@ -10,6 +39,14 @@ type game struct {
 	shoots     []*Shoot
 	explosions []*Explosion
 	state      gameState
+	images     images
+	updateTick time.Time
+}
+
+type images struct {
+	menu  *ebiten.Image
+	alien *ebiten.Image
+	hero  *ebiten.Image
 }
 
 func (g *game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -17,29 +54,57 @@ func (g *game) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func (g *game) Update() error {
-	if g.state == gameStateMenu {
-		if ebiten.IsKeyPressed(ebiten.KeyEnter) {
+	switch g.state {
+	case gameStateMenu:
+		if inpututil.IsKeyJustReleased(ebiten.KeyEnter) {
+			g.state = gameStatePrePlaying
+			g.init()
+		}
+		return nil
+	case gameStatePrePlaying:
+		if inpututil.IsKeyJustReleased(ebiten.KeyEnter) {
 			g.state = gameStatePlaying
 		}
 		return nil
+	case gameRestarts:
+		now := time.Now()
+		fmt.Printf("%v\n", now.Sub(g.updateTick))
+		if now.Sub(g.updateTick) > 1*time.Second {
+			g.init()
+			g.state = gameStatePrePlaying
+			return nil
+		}
 	}
 	g.entitiesPlay()
 	g.updateCollisions()
 	g.cleanDeads()
+	g.updateState()
 
 	return nil
 }
 
 func (g *game) Draw(screen *ebiten.Image) {
-	g.hero.Draw(screen)
-	for _, v := range g.aliens {
-		v.Draw(screen)
-	}
-	for _, v := range g.shoots {
-		v.Draw(screen)
-	}
-	for _, v := range g.explosions {
-		v.Draw(screen)
+	switch g.state {
+	case gameStateMenu:
+		op := &ebiten.DrawImageOptions{}
+		op.GeoM.Translate(0, 0)
+		op.GeoM.Scale(0.5, 0.5)
+		screen.DrawImage(g.images.menu, op)
+	case gameStatePrePlaying:
+		c := color.NRGBA{0xee, 0xe4, 0xda, 0x59}
+		text.Draw(screen, startText, mplusNormalFont, width/2-160, height/2, c)
+		fallthrough
+	case gameStatePlaying, gameRestarts:
+		g.hero.Draw(screen)
+		for _, v := range g.aliens {
+			v.Draw(screen)
+		}
+		for _, v := range g.shoots {
+			v.Draw(screen)
+		}
+		for _, v := range g.explosions {
+			v.Draw(screen)
+		}
 	}
 }
 
@@ -113,10 +178,17 @@ func (g *game) heroCollisions() {
 		if v.box.CollidesTo(g.hero.position) {
 			g.hero.state = stateDead
 			v.state = stateDead
+			g.state = gameRestarts
 		}
 	}
 }
 
+func (g *game) updateState() {
+	if g.state != gameRestarts && len(g.aliens.getPlayers()) == 0 {
+		g.state = gameRestarts
+		g.updateTick = time.Now()
+	}
+}
 func (g *game) cleanDeads() {
 	var alive Aliens
 	for _, v := range g.aliens {
@@ -161,9 +233,24 @@ func (g *game) moveAlien(alien *Alien) {
 	if ebiten.IsKeyPressed(ebiten.KeyRight) {
 		alien.box.X += alien.box.Speed
 	}
-	if ebiten.IsKeyPressed(ebiten.KeySpace) {
+	if inpututil.IsKeyJustReleased(ebiten.KeySpace) {
 		g.shoots = append(g.shoots, NewShoot(alien.box.X, alien.box.Y))
 	}
+}
+
+func (g *game) init() {
+	g.hero = &Hero{
+		img: g.images.hero,
+		position: Box{
+			X:      100,
+			Y:      500,
+			With:   64,
+			Height: 64,
+			Scale:  1,
+			Speed:  5,
+		}}
+	g.aliens = generateAliens(g.images.alien)
+	g.shoots = []*Shoot{}
 }
 
 func AreColliding(b1, b2 Box) bool {
