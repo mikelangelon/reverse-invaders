@@ -41,6 +41,7 @@ type game struct {
 	aliens     Aliens
 	shoots     []*Shoot
 	explosions []*Explosion
+	stars      []*Star
 	state      gameState
 	images     images
 	points     int
@@ -113,6 +114,9 @@ func (g *game) Draw(screen *ebiten.Image) {
 			v.Draw(screen)
 		}
 		for _, v := range g.explosions {
+			v.Draw(screen)
+		}
+		for _, v := range g.stars {
 			v.Draw(screen)
 		}
 	}
@@ -275,6 +279,12 @@ func (g *game) init() {
 		}}
 	g.aliens = generateAliens(g.images.alien)
 	g.shoots = []*Shoot{}
+	g.stars = make([]*Star, 300*(g.round+1))
+	for i, v := range g.stars {
+		v = &Star{}
+		v.Init()
+		g.stars[i] = v
+	}
 }
 
 func AreColliding(b1, b2 Box) bool {
