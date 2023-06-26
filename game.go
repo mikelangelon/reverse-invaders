@@ -12,7 +12,10 @@ import (
 	"time"
 )
 
-const startText = `Press RETURN to start`
+const (
+	startText = `Press RETURN to start`
+	roundText = `Round %d`
+)
 
 var mplusNormalFont font.Face
 
@@ -40,12 +43,16 @@ type game struct {
 	explosions []*Explosion
 	state      gameState
 	images     images
+	points     int
+	round      int
 	updateTick time.Time
+
+	currentFrame int
 }
 
 type images struct {
 	menu  *ebiten.Image
-	alien *ebiten.Image
+	alien []*ebiten.Image
 	hero  *ebiten.Image
 }
 
@@ -79,6 +86,7 @@ func (g *game) Update() error {
 	g.updateCollisions()
 	g.cleanDeads()
 	g.updateState()
+	g.currentFrame++
 
 	return nil
 }
@@ -93,11 +101,13 @@ func (g *game) Draw(screen *ebiten.Image) {
 	case gameStatePrePlaying:
 		c := color.NRGBA{0xee, 0xe4, 0xda, 0x59}
 		text.Draw(screen, startText, mplusNormalFont, width/2-160, height/2, c)
+		text.Draw(screen, fmt.Sprintf(roundText, g.round+1), mplusNormalFont, width/2-75, height/2-50, c)
 		fallthrough
 	case gameStatePlaying, gameRestarts:
+		text.Draw(screen, fmt.Sprintf("Points: %d", g.points), mplusNormalFont, width-160, 50, color.White)
 		g.hero.Draw(screen)
 		for _, v := range g.aliens {
-			v.Draw(screen)
+			v.Draw(g.currentFrame, screen)
 		}
 		for _, v := range g.shoots {
 			v.Draw(screen)
@@ -148,7 +158,7 @@ func (g *game) playerToAlienCollisions() {
 			if AreColliding(v.box, z.box) {
 				v.state = stateDead
 				z.state = stateDead
-				g.explosions = append(g.explosions, NewExplosion(v.box.XScaled(), v.box.YScaled()))
+				g.explosions = append(g.explosions, NewExplosion(v.box.XScaled(), v.box.YScaled(), 0.8))
 			}
 		}
 	}
@@ -163,7 +173,7 @@ func (g *game) alienToShootsCollisions() {
 			if AreColliding(v.box, z.box) {
 				v.state = stateDead
 				z.state = stateDead
-				g.explosions = append(g.explosions, NewExplosion(v.box.XScaled(), v.box.YScaled()))
+				g.explosions = append(g.explosions, NewExplosion(v.box.XScaled(), v.box.YScaled(), 0.3))
 			}
 		}
 	}
@@ -171,6 +181,9 @@ func (g *game) alienToShootsCollisions() {
 }
 
 func (g *game) heroCollisions() {
+	if g.hero.state == stateDead {
+		return
+	}
 	for _, v := range g.shoots {
 		if v.byHero {
 			continue
@@ -178,14 +191,25 @@ func (g *game) heroCollisions() {
 		if v.box.CollidesTo(g.hero.position) {
 			g.hero.state = stateDead
 			v.state = stateDead
-			g.state = gameRestarts
+			g.explosions = append(g.explosions, NewExplosion(v.box.XScaled(), v.box.YScaled(), 0.8))
 		}
 	}
 }
 
 func (g *game) updateState() {
-	if g.state != gameRestarts && len(g.aliens.getPlayers()) == 0 {
+	if g.state == gameRestarts {
+		return
+	}
+	if len(g.aliens.getPlayers()) == 0 {
 		g.state = gameRestarts
+		g.points = 0
+		g.round = 0
+		g.updateTick = time.Now()
+	}
+	if g.hero.state == stateDead {
+		g.state = gameRestarts
+		g.points += len(g.aliens)
+		g.round++
 		g.updateTick = time.Now()
 	}
 }
@@ -204,9 +228,9 @@ func (g *game) cleanDeads() {
 		if v.state == stateDead {
 			continue
 		}
-		//if v.box.ConvertY() > height || v.box.ConvertY() < 0 {
-		//	continue
-		//}
+		if v.box.YScaled() > height-80 || v.box.YScaled() < 10 {
+			continue
+		}
 		shoot = append(shoot, v)
 	}
 	g.shoots = shoot

@@ -8,7 +8,7 @@ import (
 )
 
 type Alien struct {
-	img          *ebiten.Image
+	img          []*ebiten.Image
 	box          Box
 	player       bool
 	state        state
@@ -18,12 +18,13 @@ type Alien struct {
 
 type Aliens []*Alien
 
-func (a *Alien) Draw(screen *ebiten.Image) {
+func (a *Alien) Draw(currentFrame int, screen *ebiten.Image) {
+	i := (currentFrame / 5) % 2
 	if !a.player {
 		op := &ebiten.DrawImageOptions{}
 		op.GeoM.Translate(a.box.X, a.box.Y)
 		op.GeoM.Scale(a.box.Scale, a.box.Scale)
-		screen.DrawImage(a.img, op)
+		screen.DrawImage(a.img[i], op)
 		return
 	}
 	// TODO unify common
@@ -36,7 +37,7 @@ func (a *Alien) Draw(screen *ebiten.Image) {
 
 	// Set color
 	cm.Translate(200, 0, 0, 0)
-	colorm.DrawImage(screen, a.img, cm, op)
+	colorm.DrawImage(screen, a.img[i], cm, op)
 }
 func (a Aliens) Move(game *game) {
 	var min = a[0].box.XScaled()

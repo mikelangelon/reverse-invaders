@@ -70,6 +70,14 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	img2, _, err := ebitenutil.NewImageFromFile("assets/pixel2.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	heroImg, _, err := ebitenutil.NewImageFromFile("assets/hero.png")
+	if err != nil {
+		log.Fatal(err)
+	}
 	defaultShootImg, _, err = ebitenutil.NewImageFromFile("assets/Shoot.png")
 	if err != nil {
 		log.Fatal(err)
@@ -83,8 +91,8 @@ func main() {
 	g := &game{
 		images: images{
 			menu:  menu,
-			alien: img,
-			hero:  img,
+			alien: []*ebiten.Image{img, img2},
+			hero:  heroImg,
 		},
 	}
 	if err := ebiten.RunGame(g); err != nil {
@@ -92,12 +100,7 @@ func main() {
 	}
 }
 
-func generateAliens(img *ebiten.Image) []*Alien {
-	img, _, err := ebitenutil.NewImageFromFile("assets/pixel.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-
+func generateAliens(img []*ebiten.Image) []*Alien {
 	var aliens []*Alien
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 4; j++ {

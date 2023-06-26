@@ -16,14 +16,14 @@ type Explosion struct {
 	lastFrame    int
 }
 
-func NewExplosion(x, y float64) *Explosion {
+func NewExplosion(x, y, scale float64) *Explosion {
 	e := &Explosion{
 		box: Box{
 			X:      x,
 			Y:      y,
 			With:   64,
 			Height: 64,
-			Scale:  initialScale,
+			Scale:  scale,
 		},
 		img:       defaultExplosionImg,
 		lastFrame: 10,
