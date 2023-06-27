@@ -261,6 +261,18 @@ func (g *game) moveAlien(alien *Alien) {
 	if ebiten.IsKeyPressed(ebiten.KeyRight) {
 		alien.box.X += alien.box.Speed
 	}
+	if alien.box.XScaled() < 0 {
+		alien.box.X = 0
+	}
+	if alien.box.XScaled() > width-64 {
+		alien.box.X = (width - 64) / alien.box.Scale
+	}
+	if alien.box.YScaled() < 0 {
+		alien.box.Y = 0
+	}
+	if alien.box.YScaled() > height-64 {
+		alien.box.Y = (height - 64) / alien.box.Scale
+	}
 	if inpututil.IsKeyJustReleased(ebiten.KeySpace) {
 		g.shoots = append(g.shoots, NewShoot(alien.box.X, alien.box.Y))
 	}
