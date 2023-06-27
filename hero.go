@@ -35,7 +35,7 @@ func (h *Hero) Move(game *game) {
 	}
 	if h.shootFrame <= 0 {
 		h.shootFrame = int(ebiten.DefaultTPS / 1.2 * rand.Float64())
-		shoot := NewShoot(h.position.X/0.5, h.position.Y/0.5)
+		shoot := NewShoot(h.position.X/0.5+64, h.position.Y/0.5)
 		shoot.byHero = true
 		shoot.box.Speed = -5
 		game.shoots = append(game.shoots, shoot)
