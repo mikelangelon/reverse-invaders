@@ -142,7 +142,7 @@ func (g *game) moveAliens() {
 }
 func (g *game) moveShoots() {
 	for _, v := range g.shoots {
-		v.box.Y += v.box.Speed
+		v.box.Y += v.box.SpeedY
 	}
 }
 
@@ -252,16 +252,16 @@ func (g *game) cleanDeads() {
 }
 func (g *game) moveAlien(alien *Alien) {
 	if ebiten.IsKeyPressed(ebiten.KeyUp) {
-		alien.box.Y -= alien.box.Speed
+		alien.box.Y -= alien.box.SpeedY
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyDown) {
-		alien.box.Y += alien.box.Speed
+		alien.box.Y += alien.box.SpeedY
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
-		alien.box.X -= alien.box.Speed
+		alien.box.X -= alien.box.SpeedY
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyRight) {
-		alien.box.X += alien.box.Speed
+		alien.box.X += alien.box.SpeedY
 	}
 	if alien.box.XScaled() < 0 {
 		alien.box.X = 0
@@ -276,7 +276,7 @@ func (g *game) moveAlien(alien *Alien) {
 		alien.box.Y = (height - 64) / alien.box.Scale
 	}
 	if inpututil.IsKeyJustReleased(ebiten.KeySpace) {
-		g.shoots = append(g.shoots, NewShoot(alien.box.X, alien.box.Y))
+		g.shoots = append(g.shoots, NewShoot(alien.box.X, alien.box.Y, defaultShoot))
 	}
 }
 
@@ -289,8 +289,10 @@ func (g *game) init() {
 			With:   64,
 			Height: 64,
 			Scale:  1,
-			Speed:  5,
-		}}
+			SpeedY: 5,
+		},
+		shootType: ballShoot,
+	}
 	g.aliens = generateAliens(g.images.alien)
 	g.shoots = []*Shoot{}
 	g.explosions = []*Explosion{}

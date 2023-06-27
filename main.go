@@ -72,6 +72,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	ballShootImg, _, err = ebitenutil.NewImageFromReader(bytes.NewReader(assets.Shoot2Png))
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	defaultExplosionImg, _, err = ebitenutil.NewImageFromReader(bytes.NewReader(assets.ExplosionPng))
 	if err != nil {
@@ -102,7 +106,7 @@ func generateAliens(img []*ebiten.Image) []*Alien {
 					Y:      float64(30 + j*100),
 					With:   64,
 					Height: 64,
-					Speed:  3,
+					SpeedY: 3,
 					Scale:  0.5,
 				},
 			}

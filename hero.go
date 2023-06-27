@@ -10,6 +10,7 @@ type Hero struct {
 	position Box
 	state    state
 
+	shootType  shootType
 	shootFrame int
 }
 
@@ -27,18 +28,31 @@ func (h *Hero) Move(game *game) {
 		return
 	}
 	h.shootFrame--
-	h.position.X += h.position.Speed
+	h.position.X += h.position.SpeedY
 	if h.position.X > width {
-		h.position.Speed = h.position.Speed * -1
+		h.position.SpeedY = h.position.SpeedY * -1
 	} else if h.position.X <= 0 {
-		h.position.Speed = h.position.Speed * -1
+		h.position.SpeedY = h.position.SpeedY * -1
 	}
 	if h.shootFrame <= 0 {
-		h.shootFrame = int(ebiten.DefaultTPS / 1.2 * rand.Float64())
-		shoot := NewShoot(h.position.X/0.5+64, h.position.Y/0.5)
-		shoot.byHero = true
-		shoot.box.Speed = -5
-		game.shoots = append(game.shoots, shoot)
+		switch h.shootType {
+		case defaultShoot:
+			h.addShoot(game, h.position.X/0.5+64, h.position.Y/0.5, 0, -5)
+		case threeShoots:
+			h.addShoot(game, h.position.X/0.5+64-20, h.position.Y/0.5+20, 0, -5)
+			h.addShoot(game, h.position.X/0.5+64, h.position.Y/0.5, 0, -5)
+			h.addShoot(game, h.position.X/0.5+64+20, h.position.Y/0.5+20, 0, -5)
+		case ballShoot:
+			h.addShoot(game, h.position.X/0.5+64-20, h.position.Y/0.5+20, 0, -10)
+		}
 	}
 
+}
+
+func (h *Hero) addShoot(game *game, x, y, speedX, speedY float64) {
+	h.shootFrame = int(ebiten.DefaultTPS / 1.2 * rand.Float64())
+	shoot := NewShoot(x, y, ballShoot)
+	shoot.byHero = true
+	shoot.box.SpeedY = speedY
+	game.shoots = append(game.shoots, shoot)
 }

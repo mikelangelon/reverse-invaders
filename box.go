@@ -6,7 +6,8 @@ type Box struct {
 	With   float64
 	Height float64
 	Scale  float64
-	Speed  float64
+	SpeedX float64
+	SpeedY float64
 }
 
 func (b Box) CollidesTo(o Box) bool {

@@ -28,4 +28,6 @@ var (
 
 	//go:embed shoot.png
 	ShootPng []byte
+	//go:embed shoot2.png
+	Shoot2Png []byte
 )
