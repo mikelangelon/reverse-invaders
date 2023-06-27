@@ -9,6 +9,7 @@ import (
 	"github.com/mikelangelon/reverse-invaders/assets"
 	"log"
 	"math/rand"
+	"time"
 )
 
 const (
@@ -78,6 +79,7 @@ func main() {
 	}
 
 	g := &game{
+		updateTick: time.Now(),
 		images: images{
 			menu:  menu,
 			alien: []*ebiten.Image{img, img2},

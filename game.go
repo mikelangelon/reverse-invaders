@@ -64,7 +64,8 @@ func (g *game) Layout(outsideWidth, outsideHeight int) (int, int) {
 func (g *game) Update() error {
 	switch g.state {
 	case gameStateMenu:
-		if inpututil.IsKeyJustReleased(ebiten.KeyEnter) {
+		now := time.Now()
+		if now.Sub(g.updateTick) > 2*time.Second {
 			g.state = gameStatePrePlaying
 			g.init()
 		}
@@ -72,11 +73,13 @@ func (g *game) Update() error {
 	case gameStatePrePlaying:
 		if inpututil.IsKeyJustReleased(ebiten.KeyEnter) {
 			g.state = gameStatePlaying
+			if g.round == 0 {
+				g.points = 0
+			}
 		}
 		return nil
 	case gameRestarts:
 		now := time.Now()
-		fmt.Printf("%v\n", now.Sub(g.updateTick))
 		if now.Sub(g.updateTick) > 1*time.Second {
 			g.init()
 			g.state = gameStatePrePlaying
@@ -206,7 +209,6 @@ func (g *game) updateState() {
 	}
 	if len(g.aliens.getPlayers()) == 0 {
 		g.state = gameRestarts
-		g.points = 0
 		g.round = 0
 		g.updateTick = time.Now()
 	}
@@ -291,6 +293,7 @@ func (g *game) init() {
 		}}
 	g.aliens = generateAliens(g.images.alien)
 	g.shoots = []*Shoot{}
+	g.explosions = []*Explosion{}
 	g.stars = make([]*Star, 300*(g.round+1))
 	for i, v := range g.stars {
 		v = &Star{}
