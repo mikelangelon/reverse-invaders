@@ -1,13 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/audio"
 	"github.com/hajimehoshi/ebiten/v2/audio/wav"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/mikelangelon/reverse-invaders/assets"
 	"log"
 	"math/rand"
-	"os"
 )
 
 const (
@@ -19,13 +20,7 @@ func main() {
 	const sampleRate = 48000
 	audioContext := audio.NewContext(sampleRate)
 	{
-		f, err := os.Open("assets/menu.wav")
-		if err != nil {
-			panic(err)
-		}
-		defer f.Close()
-
-		decoded, err := wav.DecodeWithSampleRate(sampleRate, f)
+		decoded, err := wav.DecodeWithSampleRate(sampleRate, bytes.NewReader(assets.MenuWav))
 		if err != nil {
 			panic(err)
 		}
@@ -39,13 +34,7 @@ func main() {
 		p.Play()
 	}
 	{
-		f, err := os.Open("assets/explosion.wav")
-		if err != nil {
-			panic(err)
-		}
-		defer f.Close()
-
-		decoded, err := wav.DecodeWithSampleRate(sampleRate, f)
+		decoded, err := wav.DecodeWithSampleRate(sampleRate, bytes.NewReader(assets.ExplosionWav))
 		if err != nil {
 			panic(err)
 		}
@@ -62,28 +51,28 @@ func main() {
 	ebiten.SetWindowSize(width, height)
 	ebiten.SetWindowTitle("Reverse Invaders")
 
-	menu, _, err := ebitenutil.NewImageFromFile("assets/menu.png")
+	menu, _, err := ebitenutil.NewImageFromReader(bytes.NewReader(assets.MenuPng))
 	if err != nil {
 		log.Fatal(err)
 	}
-	img, _, err := ebitenutil.NewImageFromFile("assets/pixel.png")
+	img, _, err := ebitenutil.NewImageFromReader(bytes.NewReader(assets.AlienPng))
 	if err != nil {
 		log.Fatal(err)
 	}
-	img2, _, err := ebitenutil.NewImageFromFile("assets/pixel2.png")
+	img2, _, err := ebitenutil.NewImageFromReader(bytes.NewReader(assets.AlienAnim2Png))
 	if err != nil {
 		log.Fatal(err)
 	}
-	heroImg, _, err := ebitenutil.NewImageFromFile("assets/hero.png")
+	heroImg, _, err := ebitenutil.NewImageFromReader(bytes.NewReader(assets.HeroPng))
 	if err != nil {
 		log.Fatal(err)
 	}
-	defaultShootImg, _, err = ebitenutil.NewImageFromFile("assets/Shoot.png")
+	defaultShootImg, _, err = ebitenutil.NewImageFromReader(bytes.NewReader(assets.ShootPng))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	defaultExplosionImg, _, err = ebitenutil.NewImageFromFile("assets/explosion1.png")
+	defaultExplosionImg, _, err = ebitenutil.NewImageFromReader(bytes.NewReader(assets.ExplosionPng))
 	if err != nil {
 		log.Fatal(err)
 	}
