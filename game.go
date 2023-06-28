@@ -292,7 +292,7 @@ func (g *game) init() {
 			With:   64,
 			Height: 64,
 			Scale:  1,
-			SpeedY: 5,
+			SpeedX: 5,
 		},
 		shootType: []shootType{defaultShoot, threeShoots, ballShoot, diagonalBallShoot}[rand.Intn(4)],
 		movingStrategy: []movingStrategy{

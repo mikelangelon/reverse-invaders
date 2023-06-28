@@ -48,15 +48,15 @@ func (h *Hero) Move(game *game) {
 	all := h.movingStrategy.all()
 	choosenStrategy := rand.Intn(all)
 	if choosenStrategy <= h.movingStrategy.wallToWall {
-		h.position.X += h.position.SpeedY
+		h.position.X += h.position.SpeedX
 		if h.position.X > width {
-			h.position.SpeedY = h.position.SpeedY * -1
+			h.position.SpeedX = h.position.SpeedX * -1
 		} else if h.position.X <= 0 {
-			h.position.SpeedY = h.position.SpeedY * -1
+			h.position.SpeedX = h.position.SpeedX * -1
 		}
 	} else if choosenStrategy > h.movingStrategy.adaptToBullet && choosenStrategy <= h.movingStrategy.adaptToBullet {
-		futurePosition := h.position.X + h.position.SpeedY
-		evenMoreFuturePosition := futurePosition + 2*h.position.SpeedY
+		futurePosition := h.position.X + h.position.SpeedX
+		evenMoreFuturePosition := futurePosition + 2*h.position.SpeedX
 		safe := true
 		for _, v := range game.shoots {
 			if v.byHero {
@@ -72,17 +72,17 @@ func (h *Hero) Move(game *game) {
 		if safe {
 			h.position.X = futurePosition
 			if h.position.X > width {
-				h.position.SpeedY = h.position.SpeedY * -1
+				h.position.SpeedX = h.position.SpeedX * -1
 			} else if h.position.X <= 0 {
-				h.position.SpeedY = h.position.SpeedY * -1
+				h.position.SpeedX = h.position.SpeedX * -1
 			}
 		} else {
-			h.position.SpeedY = h.position.SpeedY * -1
-			h.position.X += h.position.SpeedY
+			h.position.SpeedX = h.position.SpeedX * -1
+			h.position.X += h.position.SpeedX
 			if h.position.X > width {
-				h.position.SpeedY = h.position.SpeedY * -1
+				h.position.SpeedX = h.position.SpeedX * -1
 			} else if h.position.X <= 0 {
-				h.position.SpeedY = h.position.SpeedY * -1
+				h.position.SpeedX = h.position.SpeedX * -1
 			}
 		}
 	} else {
@@ -94,9 +94,9 @@ func (h *Hero) Move(game *game) {
 			}
 		}
 		if h.position.X > lowestAlien.box.XScaled()-lowestAlien.box.With/2 {
-			h.position.X -= h.position.SpeedY
+			h.position.X -= h.position.SpeedX
 		} else {
-			h.position.X += h.position.SpeedY
+			h.position.X += h.position.SpeedX
 		}
 	}
 
