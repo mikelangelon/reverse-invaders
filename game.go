@@ -9,11 +9,12 @@ import (
 	"golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 	"image/color"
+	"math/rand"
 	"time"
 )
 
 const (
-	startText = `Press RETURN to start`
+	startText = `Press SPACE to start`
 	roundText = `Round %d`
 )
 
@@ -54,7 +55,7 @@ type game struct {
 type images struct {
 	menu  *ebiten.Image
 	alien []*ebiten.Image
-	hero  *ebiten.Image
+	hero  []*ebiten.Image
 }
 
 func (g *game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -71,7 +72,7 @@ func (g *game) Update() error {
 		}
 		return nil
 	case gameStatePrePlaying:
-		if inpututil.IsKeyJustReleased(ebiten.KeyEnter) {
+		if inpututil.IsKeyJustReleased(ebiten.KeySpace) {
 			g.state = gameStatePlaying
 			if g.round == 0 {
 				g.points = 0
@@ -143,6 +144,7 @@ func (g *game) moveAliens() {
 func (g *game) moveShoots() {
 	for _, v := range g.shoots {
 		v.box.Y += v.box.SpeedY
+		v.box.X += v.box.SpeedX
 	}
 }
 
@@ -251,16 +253,16 @@ func (g *game) cleanDeads() {
 	g.explosions = explosions
 }
 func (g *game) moveAlien(alien *Alien) {
-	if ebiten.IsKeyPressed(ebiten.KeyUp) {
+	if ebiten.IsKeyPressed(ebiten.KeyUp) || ebiten.IsKeyPressed(ebiten.KeyW) {
 		alien.box.Y -= alien.box.SpeedY
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyDown) {
+	if ebiten.IsKeyPressed(ebiten.KeyDown) || ebiten.IsKeyPressed(ebiten.KeyS) {
 		alien.box.Y += alien.box.SpeedY
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyLeft) {
+	if ebiten.IsKeyPressed(ebiten.KeyLeft) || ebiten.IsKeyPressed(ebiten.KeyA) {
 		alien.box.X -= alien.box.SpeedY
 	}
-	if ebiten.IsKeyPressed(ebiten.KeyRight) {
+	if ebiten.IsKeyPressed(ebiten.KeyRight) || ebiten.IsKeyPressed(ebiten.KeyD) {
 		alien.box.X += alien.box.SpeedY
 	}
 	if alien.box.XScaled() < 0 {
@@ -281,8 +283,9 @@ func (g *game) moveAlien(alien *Alien) {
 }
 
 func (g *game) init() {
+	rand.Seed(time.Now().Unix()) // initialize global pseudo random generator
 	g.hero = &Hero{
-		img: g.images.hero,
+		img: g.images.hero[rand.Intn(len(g.images.hero))],
 		position: Box{
 			X:      100,
 			Y:      500,
@@ -291,7 +294,45 @@ func (g *game) init() {
 			Scale:  1,
 			SpeedY: 5,
 		},
-		shootType: ballShoot,
+		shootType: []shootType{defaultShoot, threeShoots, ballShoot, diagonalBallShoot}[rand.Intn(4)],
+		movingStrategy: []movingStrategy{
+			{
+				wallToWall:    100,
+				adaptToBullet: 0,
+				YThreshold:    yThreshold(),
+				XRange:        xThreshold(),
+			},
+			{
+				wallToWall:    20,
+				adaptToBullet: 8000,
+				YThreshold:    yThreshold(),
+				XRange:        xThreshold(),
+			},
+			{
+				wallToWall:    50000,
+				adaptToBullet: 10,
+				YThreshold:    yThreshold(),
+				XRange:        xThreshold(),
+			},
+			{
+				wallToWall:    20,
+				adaptToBullet: 100,
+				YThreshold:    yThreshold(),
+				XRange:        xThreshold(),
+			},
+			{
+				attackLowest: 100,
+				YThreshold:   yThreshold(),
+				XRange:       xThreshold(),
+			},
+			{
+				wallToWall:    20,
+				adaptToBullet: 100,
+				attackLowest:  100,
+				YThreshold:    yThreshold(),
+				XRange:        xThreshold(),
+			},
+		}[rand.Intn(6)],
 	}
 	g.aliens = generateAliens(g.images.alien)
 	g.shoots = []*Shoot{}

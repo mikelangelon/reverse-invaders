@@ -27,7 +27,7 @@ func NewShoot(x, y float64, t shootType) *Shoot {
 		img: defaultShootImg,
 	}
 	switch t {
-	case ballShoot:
+	case ballShoot, diagonalBallShoot:
 		s.img = ballShootImg
 		s.box.With = 32
 		s.box.Height = 32
@@ -47,4 +47,5 @@ const (
 	defaultShoot shootType = iota
 	threeShoots
 	ballShoot
+	diagonalBallShoot
 )

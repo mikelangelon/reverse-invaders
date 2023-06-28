@@ -40,6 +40,9 @@ func (a *Alien) Draw(currentFrame int, screen *ebiten.Image) {
 	colorm.DrawImage(screen, a.img[i], cm, op)
 }
 func (a Aliens) Move(game *game) {
+	if len(a) == 0 {
+		return
+	}
 	var min = a[0].box.XScaled()
 	var max = a[0].box.XScaled()
 	for _, v := range a {
@@ -111,4 +114,12 @@ func (a Aliens) getNoPlayers() Aliens {
 		}
 	}
 	return aliens
+}
+
+func (a Aliens) shuffle() Aliens {
+	for i := range a {
+		j := rand.Intn(i + 1)
+		a[i], a[j] = a[j], a[i]
+	}
+	return a
 }

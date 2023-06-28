@@ -22,6 +22,10 @@ var (
 
 	//go:embed hero.png
 	HeroPng []byte
+	//go:embed hero2.png
+	Hero2Png []byte
+	//go:embed hero3.png
+	Hero3Png []byte
 
 	//go:embed explosion.png
 	ExplosionPng []byte

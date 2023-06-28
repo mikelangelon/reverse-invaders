@@ -68,6 +68,14 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	hero2Img, _, err := ebitenutil.NewImageFromReader(bytes.NewReader(assets.Hero2Png))
+	if err != nil {
+		log.Fatal(err)
+	}
+	hero3Img, _, err := ebitenutil.NewImageFromReader(bytes.NewReader(assets.Hero3Png))
+	if err != nil {
+		log.Fatal(err)
+	}
 	defaultShootImg, _, err = ebitenutil.NewImageFromReader(bytes.NewReader(assets.ShootPng))
 	if err != nil {
 		log.Fatal(err)
@@ -76,7 +84,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	defaultExplosionImg, _, err = ebitenutil.NewImageFromReader(bytes.NewReader(assets.ExplosionPng))
 	if err != nil {
 		log.Fatal(err)
@@ -87,7 +94,7 @@ func main() {
 		images: images{
 			menu:  menu,
 			alien: []*ebiten.Image{img, img2},
-			hero:  heroImg,
+			hero:  []*ebiten.Image{heroImg, hero2Img, hero3Img},
 		},
 	}
 	if err := ebiten.RunGame(g); err != nil {
