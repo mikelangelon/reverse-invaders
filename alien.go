@@ -7,11 +7,22 @@ import (
 	"math/rand"
 )
 
+type alienType int
+
+const (
+	alienDefault alienType = iota
+	alienSlow
+	alienFast
+
+	alienSpeed = 3
+)
+
 type Alien struct {
 	img          []*ebiten.Image
 	box          Box
 	player       bool
 	state        state
+	alienType    alienType
 	shootFrame   int
 	initMovDownY float64
 }
@@ -20,24 +31,17 @@ type Aliens []*Alien
 
 func (a *Alien) Draw(currentFrame int, screen *ebiten.Image) {
 	i := (currentFrame / 5) % 2
-	if !a.player {
-		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(a.box.X, a.box.Y)
-		op.GeoM.Scale(a.box.Scale, a.box.Scale)
-		screen.DrawImage(a.img[i], op)
-		return
-	}
-	// TODO unify common
+	//if !a.player {
+	//	op := &ebiten.DrawImageOptions{}
+	//	op.GeoM.Translate(a.box.X, a.box.Y)
+	//	op.GeoM.Scale(a.box.Scale, a.box.Scale)
+	//	screen.DrawImage(a.img[i], op)
+	//	return
+	//}
 	op := &colorm.DrawImageOptions{}
 	op.GeoM.Translate(a.box.X, a.box.Y)
 	op.GeoM.Scale(a.box.Scale, a.box.Scale)
-	// Reset RGB (not Alpha) 0 forcibly
-	var cm colorm.ColorM
-	cm.Scale(0, 0, 0, 1)
-
-	// Set color
-	cm.Translate(200, 0, 0, 0)
-	colorm.DrawImage(screen, a.img[i], cm, op)
+	colorm.DrawImage(screen, a.img[i], colorByAlienType(a.alienType, a.player), op)
 }
 func (a Aliens) Move(game *game) {
 	if len(a) == 0 {
@@ -122,4 +126,75 @@ func (a Aliens) shuffle() Aliens {
 		a[i], a[j] = a[j], a[i]
 	}
 	return a
+}
+
+func generateAliens(img []*ebiten.Image) []*Alien {
+	alienType := []alienType{alienDefault, alienDefault, alienDefault, alienDefault, alienDefault, alienSlow, alienFast}[rand.Intn(7)]
+	var aliens []*Alien
+	for i := 0; i < 8; i++ {
+		for j := 0; j < 4; j++ {
+			a := &Alien{
+				img:       img,
+				alienType: alienType,
+				box: Box{
+					X:      float64(100 + i*xSeparationByAlienType(alienType)),
+					Y:      float64(30 + j*100),
+					With:   64,
+					Height: 64,
+					SpeedY: speedYByAlienType(alienType),
+					Scale:  0.5,
+				},
+			}
+			a.setShootFrame()
+			aliens = append(aliens, a)
+		}
+	}
+	// Pick random alien to be the player
+	n := rand.Int() % len(aliens)
+	aliens[n].player = true
+	aliens[n].box.SpeedY = alienSpeed
+
+	return aliens
+}
+
+func speedYByAlienType(alienType alienType) float64 {
+	switch alienType {
+	case alienSlow:
+		return alienSpeed - 0.1
+	case alienFast:
+		return alienSpeed + 0.1
+	default:
+		return alienSpeed
+	}
+}
+
+func colorByAlienType(alienType alienType, player bool) colorm.ColorM {
+	var cm colorm.ColorM
+	cm.Scale(0, 0, 0, 1)
+
+	if player {
+		cm.Translate(200, 0, 0, 0)
+		return cm
+	}
+
+	switch alienType {
+	case alienSlow:
+		cm.Translate(0, 0, 200, 0)
+	case alienFast:
+		cm.Translate(200, 0, 200, 0)
+	default:
+		cm.Translate(0, 200, 0, 0)
+	}
+	return cm
+}
+
+func xSeparationByAlienType(alienType alienType) int {
+	switch alienType {
+	case alienSlow:
+		return 110
+	case alienFast:
+		return 140
+	default:
+		return 120
+	}
 }

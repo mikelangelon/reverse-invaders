@@ -8,7 +8,6 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/mikelangelon/reverse-invaders/assets"
 	"log"
-	"math/rand"
 	"time"
 )
 
@@ -100,30 +99,4 @@ func main() {
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func generateAliens(img []*ebiten.Image) []*Alien {
-	var aliens []*Alien
-	for i := 0; i < 8; i++ {
-		for j := 0; j < 4; j++ {
-			a := &Alien{
-				img: img,
-				box: Box{
-					X:      float64(100 + i*120),
-					Y:      float64(30 + j*100),
-					With:   64,
-					Height: 64,
-					SpeedY: 3,
-					Scale:  0.5,
-				},
-			}
-			a.setShootFrame()
-			aliens = append(aliens, a)
-		}
-	}
-	// Pick random alien to be the player
-	n := rand.Int() % len(aliens)
-	aliens[n].player = true
-
-	return aliens
 }
